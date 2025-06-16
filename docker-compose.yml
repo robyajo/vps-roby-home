@@ -29,7 +29,7 @@ services:
       SERVICE_TAGS: dev
     working_dir: /var/www/apiblog.roby.web.id
     volumes:
-      - ./src:/var/www
+      - ./src/apiblog.roby.web.id:/var/www/apiblog.roby.web.id
       - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
     networks:
       - laravel_docker-networks
@@ -46,7 +46,7 @@ services:
       SERVICE_TAGS: dev
     working_dir: /var/www/api.roby.web.id
     volumes:
-      - ./src:/var/www
+      - ./src/api.roby.web.id:/var/www/api.roby.web.id
       - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
     networks:
       - laravel_docker-networks
