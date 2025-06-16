@@ -1,0 +1,93 @@
+version: "3.9"
+
+services:
+  webserver:
+    image: nginx:latest
+    container_name: webserver_docker
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "1011:80"
+    volumes:
+      - ./src:/var/www
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d
+    depends_on:
+      - php_apiblog
+      - php_api
+    networks:
+      - laravel_docker-networks
+
+  php_apiblog:
+    build:
+      context: ./docker/php
+      dockerfile: Dockerfile
+    container_name: php_apiblog_docker
+    restart: unless-stopped
+    tty: true
+    environment:
+      SERVICE_NAME: php_apiblog
+      SERVICE_TAGS: dev
+    working_dir: /var/www/apiblog.roby.web.id
+    volumes:
+      - ./src:/var/www
+      - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      - laravel_docker-networks
+
+  php_api:
+    build:
+      context: ./docker/php
+      dockerfile: Dockerfile
+    container_name: php_api_docker
+    restart: unless-stopped
+    tty: true
+    environment:
+      SERVICE_NAME: php_api
+      SERVICE_TAGS: dev
+    working_dir: /var/www/api.roby.web.id
+    volumes:
+      - ./src:/var/www
+      - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      - laravel_docker-networks
+
+  db:
+    image: mysql:latest
+    container_name: db_docker
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "4306:3306"
+    environment:
+      MYSQL_DATABASE: db_docker
+      MYSQL_USER: user
+      MYSQL_PASSWORD: user
+      MYSQL_ROOT_PASSWORD: root
+      SERVICE_NAME: mysql
+      SERVICE_TAGS: dev
+    volumes:
+      - db:/var/lib/mysql
+      - ./docker/mysql/my.conf:/etc/mysql/my.conf
+    networks:
+      - laravel_docker-networks
+
+  phpmyadmin:
+    depends_on:
+      - db
+    image: phpmyadmin:latest
+    container_name: phpmyadmin_docker
+    restart: unless-stopped
+    ports:
+      - "1002:80"
+    environment:
+      PMA_HOST: db
+    networks:
+      - laravel_docker-networks
+
+networks:
+  laravel_docker-networks:
+    driver: bridge
+
+volumes:
+  db:
+    driver: local
